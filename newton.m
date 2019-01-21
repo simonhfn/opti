@@ -12,7 +12,7 @@ function [flag, x] = newton( f, x0 )
 
 t = -1;
 % nb iterations apres lesqulles on s'arrete
-nbIterations = 1000;
+nbIter = 1000;
 
 x = x0;
 
@@ -40,7 +40,7 @@ while continuer
     t = k;
 
     c = num2cell(x);
-    c_ancien = num2cell(x_ancien);
+    old_c = num2cell(old_x);
 
     %condition d'arret 1
   	if norm(g) > eps(g + epsilon)
@@ -53,7 +53,7 @@ while continuer
   		continuer = false;
   	end
   	%condition d'arret 3
-  	if norm(f(x)-f(old_x) <= eps(abs(f(old_x) + epsilon));
+  	if norm(f(c{:})-f(old_c{:})) > eps(abs(f(old_c{:}) + epsilon));
   		flag =3;
   		continuer = false;
   	end
@@ -62,6 +62,6 @@ while continuer
   		flag =4;
   		continuer = false;
   	end
-end;
+end
 
 end

@@ -11,5 +11,8 @@
 % pas : pas optimal a l'interieur de la region de confiance
 
 function [pas] = GradientConjTronc (g, h , delta)
-          %todo
+          s=0;
+          g=g;
+          p=-g;
+          
 end

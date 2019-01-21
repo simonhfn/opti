@@ -33,13 +33,13 @@ flag=0;
 sigma=0.1;
 grad0=gradf*transpose(x0);
 %% algo
-while (flag==0) 
+while (flag==0)
     %calcul dk
     dk=-transpose(gradf.*x)\hesf.*x;
     %calcul xk+1
     xprecedent=x;
     x=x+dk;
-    sol=x;    
+    sol=x;
     %conditions d'arret
     if k>niteration
         flag=1;

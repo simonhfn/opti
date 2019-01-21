@@ -1,5 +1,5 @@
 % Cas tests pour le calcul du pas de cauchy
-
+disp('######## Test du pas de cauchy')
 delta=2;
 
 %% cas 1
@@ -19,4 +19,3 @@ disp('cas 3')
 g_3=[-2;1]
 h_3=[-2 0; 0 10]
 pasdecauchy(g_3,h_3,delta)
-

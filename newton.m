@@ -1,4 +1,4 @@
-function [t, x] = newton( f, x0 )
+function [flag, x] = newton( f, x0 )
 % NEWTON Determine min f(x) pour x dans R^n
 % [T, X] = NEWTON( F, X0 )
 % PARAMETRES
@@ -12,7 +12,7 @@ function [t, x] = newton( f, x0 )
 
 t = -1;
 % nb iterations apres lesqulles on s'arrete
-nbIterations = 20;
+nbIterations = 1000;
 
 x = x0;
 
@@ -27,29 +27,41 @@ k = 0;
 
 epsilon = 1/10^6;
 
-testArret1 = false;
-testArret2 = false;
-testArret3 = false;
-testArret4 = false;
-
-while ~testArret1 && ~testArret2 && ~testArret3 && ~testArret4
+continuer = true;
+while continuer
     % Calcul de d
     d = - H \ g;
     % Mise a jour des variables
-    x_ancien = x;
+    old_x = x;
     x = x+d;
     g = eval(subs(grad, var, x));
     H = eval(subs(hess, var, x));
     k = k+1;
     t = k;
-    
+
     c = num2cell(x);
     c_ancien = num2cell(x_ancien);
-    
-    testArret1 = norm(g) <= eps(g + epsilon);
-    testArret2 = norm(x-x_ancien) <= eps(norm(x_ancien) + epsilon);
-    testArret3 = norm(f(c{:})-f(c_ancien{:})) <= eps(abs(f(c_ancien{:})) + epsilon);
-    testArret4 = k >= nbIterations;
+
+    %condition d'arret 1
+  	if norm(g) > eps(g + epsilon)
+  		flag =1;
+  		continuer = false;
+  	end
+  	%condition d'arret 2
+  	if norm(x-old_x) > eps(norm(old_x) + epsilon);
+  		flag =2;
+  		continuer = false;
+  	end
+  	%condition d'arret 3
+  	if norm(f(x)-f(old_x) <= eps(abs(f(old_x) + epsilon));
+  		flag =3;
+  		continuer = false;
+  	end
+  	%condition d'arret 4
+  	if k >= nbIter
+  		flag =4;
+  		continuer = false;
+  	end
 end;
 
 end

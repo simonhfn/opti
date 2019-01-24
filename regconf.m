@@ -26,7 +26,7 @@ function [flag,sol]=regconf(f, x0, delta0, gamma1, gamma2, eta1, eta2)
 	delta = delta0;
 	k=0;
 	nbIter=10000;
-	epsilon=1e-6;
+	epsilon=0.001;
 
 	var = sym('x', [length(x) 1]);
 
@@ -37,17 +37,18 @@ function [flag,sol]=regconf(f, x0, delta0, gamma1, gamma2, eta1, eta2)
 	H = eval(subs(h,var, x));
 	s = pasdecauchy(G,H,delta);
 	g0 = eval(subs(G,var,x0));
+	c = num2cell(x);
 
   continuer = true;
 
   while continuer
-		f_x=f(x);
-		f_xs=f(x+s);
+		old =x;
+		f_x=f(c{:});
+		c = num2cell(x+s);
+		f_xs=f(c{:});
 		m_x=f_x;
 		m_xs=f_x+G'*s+1/2*s'*H*s;
 		rhok=(f_x - f_xs)/(m_x - m_xs);
-
-		old_x = x;
 
 		%maj de litere
 		if (rhok >=eta1)
@@ -56,31 +57,32 @@ function [flag,sol]=regconf(f, x0, delta0, gamma1, gamma2, eta1, eta2)
 
 		%maj region de conf
 		if rhok>=eta2
-			delta=min(gamma2*delta,delta_max)
+			delta=min(gamma2*delta,delta_max);
 		else if rohk<eta1
-			delta=gamma1*delta
+			delta=gamma1*delta;
 		     end
     end
 
 	%actualisation des fonctions
 	k=k+1;
+	c=num2cell(x);
 	G = eval(subs(g,var,x));
 	H=eval (subs(h,var,x));
 	s=pasdecauchy(G,H,delta);
 	sol=x;
 
 	%condition d'arret 1
-	if norm(g) > eps(g + epsilon)
-		flag =1;
-		continuer = false;
-	end
+%	if norm(G) > epsilon*(g0 + epsilon)
+%		flag =1;
+%		continuer = false;
+%	end
 	%condition d'arret 2
-	if norm(x-old_x) > eps(norm(old_x) + epsilon);
-		flag =2;
-		continuer = false;
-	end
+%	if norm(x-old) > epsilon*(norm(old) + epsilon);
+%		flag =2;
+%		continuer = false;
+%	end
 	%condition d'arret 3
-	if norm(f(x)-f(old_x) <= eps(abs(f(old_x) + epsilon));
+	if norm(f(c{:})-f_x) <= epsilon*(abs(f_x + epsilon));
 		flag =3;
 		continuer = false;
 	end
@@ -90,4 +92,6 @@ function [flag,sol]=regconf(f, x0, delta0, gamma1, gamma2, eta1, eta2)
 		continuer = false;
 	end
 	end
+	disp ('nombre de iterations : ');
+	k
 end

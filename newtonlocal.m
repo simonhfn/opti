@@ -1,65 +1,72 @@
-%% ####Newton Local####
-%
-% Résolution d'un problème d'optimisation sans contraintes en utilisant l'algorithme de Newton Local
-%
-% newtonlocal(f,x0,epsilon) -> sol
-%
-%---En entrée---
-% f : fonction a minimiser
-% gradientf : gradient de f
-% hessienf : hessienne de f
-% x0 : approximation de la solution (i.e. point de départ)
-% tol1 : précision souhaitée sur la solution (CN1)
-% tol2 : précision souhaitée entre 2 pas (stagnation du pas)
-% tol3 : précision souhaitée entre 2 iterations de la valeur de f
-% (stagnation de f)
-% niteration : nombre d'itération max
-%
-%---En sortie---
-%sol : solution approche à epsilon près
-%
-%f1 est quadraituqe --> resultat en 1 iteration, devellopement de taylor a
-%l'ordre 2 = elle meme
+%% Algorithme de Newton Local
+% en entree la fonction f et le point de depart x0
+% en sortie :
+% le flag pour connaitre la raison de l'arret de l'algorithme vaut -1 si
+% probleme
+% la solution x
+% et l'algorithme affiche egalement le nombre diteration de lalgorithme
 
-function [sol,flag] = newtonlocal(f,gradf,hesf,x0,tol1,tol2,tol3,niteration)
+function [flag, x] = newtonlocal( f, x0 )
+flag=-1;
+nbIterations = 50;
 
-%% variables internes
-n=size(x0,2);
-k = 0; % nombre d'itérations
-x = x0; %point de départ
-xprecedent=x0;
-dk =zeros(1,n);
-flag=0;
-sigma=0.1;
-grad0=gradf*transpose(x0);
-%% algo
-while (flag==0)
-    %calcul dk
-    dk=-transpose(gradf.*x)\hesf.*x;
-    %calcul xk+1
-    xprecedent=x;
-    x=x+dk;
-    sol=x;
-    %conditions d'arret
-    if k>niteration
-        flag=1;
-    elseif norm(gradf.*transpose(x))<=tol1*(norm(grad0)+sigma)
-        flag=2;
-    elseif norm(x-xprecedent)<=tol2*(norm(xprecedent)+sigma)
-        flag=3;
-     elseif norm(f.*transpose(x)-f.*transpose(xprecedent)) <=tol3*(norm(f.*transpose(xprecedent))+sigma)
-         flag=4;
+x = x0;
+
+var = sym('x', [length(x) 1]);
+
+grad = gradient(f, var);
+g = eval(subs(grad, var, x));
+hess = hessian(f, var);
+H = eval(subs(hess, var, x));
+
+k = 0;
+
+epsilon = 1/10^6;
+
+testArret1 = false;
+testArret2 = false;
+testArret3 = false;
+testArret4 = false;
+continuer = true;
+
+while continuer
+    % Calcul de d
+    d = - H \ g;
+    % Mise a jour des variables
+    x_ancien = x;
+    x = x+d;
+    g = eval(subs(grad, var, x));
+    H = eval(subs(hess, var, x));
+    k = k+1;
+    tol=0.0001;
+    
+    c = num2cell(x);
+    c_ancien = num2cell(x_ancien);
+    
+    testArret1 = norm(g) <= tol*(g + sqrt(epsilon));
+    testArret2 = norm(x-x_ancien) <= tol*(norm(x_ancien) + sqrt(epsilon));
+    testArret3 = norm(f(c{:})-f(c_ancien{:})) <= tol*(abs(f(c_ancien{:})) + sqrt(epsilon));
+    testArret4 = k >= nbIterations;
+    
+    if testArret1 == true
+        continuer = false;
+        flag = 0;
     end
-    k=k+1;
-end
-
-disp("il y a eu " + k + " itération(s)");
-if (flag==1)
-    disp("la solution est " + x + " et l'arret est du à : nombre d'iteration dépassé; \n");
-elseif (flag==2)
-    disp("la solution est " + x + " et l'arret est du à : CN1 validée, gradient de la solution nul à " + tol1 + " pres;" );
-elseif(flag==3)
-    disp("la solution est " + x + " et l'arret est du à : Stagnation du pas, différence x+1 et xk < tolerance; \n ");
-elseif(flag==4)
-    disp("la solution est " + x + " et l'arret est du à : Stagnation de f, difference f(xk+1) et f(xk) < tolerance");
+     if testArret2 == true
+        continuer = false;
+        flag = 1;
+     end
+       if testArret3 == true
+        continuer = false;
+        flag = 2;
+       end
+        if testArret4 == true
+        continuer = false;
+        flag = 3;
+     end
+end;
+disp('nombre diter')
+k
+disp('raison de larret')
+flag
 end

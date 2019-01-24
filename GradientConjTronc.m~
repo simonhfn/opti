@@ -25,7 +25,7 @@ function [flag,pas] = GradientConjTronc (g, h , delta)
             %etape b
             if k<=0
               sigma=solve(norm(s+sigma*p)==delta,sigma);
-              sigma = find(sigma>0); %???
+              sigma = find
               s=s+sigma*p;
             end
 
@@ -34,10 +34,8 @@ function [flag,pas] = GradientConjTronc (g, h , delta)
 
             %etape d
             if norm(s+alpha*p)>delta
-              sigma=solve(norm(s+sigma*p)==delta,sigma);
-              sigma = find(sigma>0);
-              s=s+sigma*p;
-              break
+              %??????
+              s=s+*sigma*p;
             end
 
             %etape e
